@@ -88,6 +88,7 @@ export default function MenuTree({ nodes }) {
     );
   }
   
+  // Dữ liệu đã là cây rồi từ useMenu hook
   return (
     <div>
       {nodes.map((n) => (

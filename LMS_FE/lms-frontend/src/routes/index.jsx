@@ -8,6 +8,7 @@ import MaterialsPublished from "../pages/MaterialsPublished";
 import MaterialsUpload from "../pages/MaterialsUpload";
 import MaterialsManage from "../pages/MaterialsManage";
 import MaterialView from "../pages/MaterialView";
+import MaterialList from "../pages/MaterialList";
 import Users from "../pages/Users";
 import Roles from "../pages/Roles";
 import Actions from "../pages/Actions";
@@ -69,6 +70,28 @@ export default function AppRoutes({ user, error, menu, doLogin, doLogout }) {
           <ProtectedRoute user={user}>
             <AppLayout user={user} menu={menu} onLogout={doLogout}>
               <MaterialsUpload />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/materials"
+        element={
+          <ProtectedRoute user={user}>
+            <AppLayout user={user} menu={menu} onLogout={doLogout}>
+              <MaterialList />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/materials/list"
+        element={
+          <ProtectedRoute user={user}>
+            <AppLayout user={user} menu={menu} onLogout={doLogout}>
+              <MaterialList />
             </AppLayout>
           </ProtectedRoute>
         }
