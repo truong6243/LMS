@@ -15,41 +15,61 @@ namespace LMS.WebApi.Controllers
         [HttpGet, Route("my")]
         public IHttpActionResult My()
         {
+            System.Diagnostics.Debug.WriteLine("=== Loading menu for user ===");
+            
             var uid = UserContext.CurrentUserId(); // Hàm lấy user ID hiện tại
+            System.Diagnostics.Debug.WriteLine(string.Format("User ID: {0}", uid));
+            
             var list = new List<MenuItem>();
 
-            using (var cn = DatabaseHelper.Open())
-            using (var cmd = DatabaseHelper.Sql(cn, @"
-                SELECT ActionId, ActionCode, ActionName, Path, MenuGroup, ParentId, SortOrder, Icon
-                FROM lms.v_MenuByUser
-                WHERE UserId=@uid
-                ORDER BY 
-                    CASE WHEN MenuGroup='ROOT' THEN 0 ELSE 1 END,
-                    ISNULL(ParentId,0),
-                    SortOrder"))
+            try
             {
-                cmd.Parameters.AddWithValue("@uid", uid);
-
-                using (var r = cmd.ExecuteReader())
+                using (var cn = DatabaseHelper.Open())
                 {
-                    while (r.Read())
+                    System.Diagnostics.Debug.WriteLine("Đang lấy danh sách Actions là menu...");
+                    
+                    using (var cmd = DatabaseHelper.Sql(cn, @"
+                        SELECT ActionId, ActionCode, ActionName, Path, ParentId, SortOrder, Icon
+                        FROM lms.Actions
+                        WHERE IsMenu = 1
+                        ORDER BY ISNULL(ParentId, 0), SortOrder"))
                     {
-                        list.Add(new MenuItem
+                        cmd.CommandTimeout = 30;
+
+                        using (var r = cmd.ExecuteReader())
                         {
-                            ActionId = (int)r["ActionId"],
-                            ActionCode = r["ActionCode"].ToString(),
-                            ActionName = r["ActionName"].ToString(),
-                            Path = r["Path"] as string,
-                            MenuGroup = r["MenuGroup"] as string,
-                            ParentId = r["ParentId"] as int?,
-                            SortOrder = (int)r["SortOrder"],
-                            Icon = r["Icon"] as string
-                        });
+                            System.Diagnostics.Debug.WriteLine("Bắt đầu đọc dữ liệu từ SqlDataReader...");
+                            while (r.Read())
+                            {
+                                list.Add(new MenuItem
+                                {
+                                    ActionId = (int)r["ActionId"],
+                                    ActionCode = r["ActionCode"].ToString(),
+                                    ActionName = r["ActionName"].ToString(),
+                                    Path = r["Path"] != System.DBNull.Value ? r["Path"].ToString() : null,
+                                    ParentId = r["ParentId"] != System.DBNull.Value ? (int?)r["ParentId"] : null,
+                                    SortOrder = (int)r["SortOrder"],
+                                    Icon = r["Icon"] != System.DBNull.Value ? r["Icon"].ToString() : null
+                                });
+                            }
+                            System.Diagnostics.Debug.WriteLine(string.Format("Đã đọc {0} menu items.", list.Count));
+                        }
                     }
                 }
-            }
 
-            return Ok(new { ok = true, data = list });
+                System.Diagnostics.Debug.WriteLine(string.Format("Menu items loaded: {0}", list.Count));
+                return Ok(new { ok = true, data = list });
+            }
+            catch (SqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("SQL Error: {0}", ex.Message));
+                return InternalServerError(ex);
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Error: {0}", ex.Message));
+                return InternalServerError(ex);
+            }
         }
     }
 }
