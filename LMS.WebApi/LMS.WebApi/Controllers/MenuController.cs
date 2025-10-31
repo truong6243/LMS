@@ -71,5 +71,67 @@ namespace LMS.WebApi.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        // GET /api/menu/actions - Lấy tất cả actions của user hiện tại
+        [HttpGet, Route("actions")]
+        public IHttpActionResult GetMyActions()
+        {
+            var uid = UserContext.CurrentUserId();
+            var actions = new List<string>();
+
+            try
+            {
+                using (var cn = DatabaseHelper.Open())
+                {
+                    // Lấy tất cả actions có trong hệ thống
+                    var allActions = new List<string>();
+                    using (var cmd = DatabaseHelper.Sql(cn, "SELECT ActionCode FROM lms.Actions"))
+                    {
+                        cmd.CommandTimeout = 30;
+                        using (var r = cmd.ExecuteReader())
+                        {
+                            while (r.Read())
+                            {
+                                allActions.Add(r["ActionCode"].ToString());
+                            }
+                        }
+                    }
+
+                    // Kiểm tra từng action xem user có quyền không
+                    foreach (var actionCode in allActions)
+                    {
+                        using (var cmd = DatabaseHelper.Sql(cn, "SELECT lms.fn_UserHasAction(@uid, @actionCode) AS HasAction"))
+                        {
+                            cmd.CommandTimeout = 30;
+                            cmd.Parameters.AddWithValue("@uid", uid);
+                            cmd.Parameters.AddWithValue("@actionCode", actionCode);
+                            
+                            var result = cmd.ExecuteScalar();
+                            bool hasAction = false;
+                            
+                            // Xử lý nhiều kiểu trả về khác nhau
+                            if (result is bool)
+                                hasAction = (bool)result;
+                            else if (result is int)
+                                hasAction = ((int)result) == 1;
+                            else if (result is byte)
+                                hasAction = ((byte)result) == 1;
+                            
+                            if (hasAction)
+                            {
+                                actions.Add(actionCode);
+                            }
+                        }
+                    }
+                }
+
+                return Ok(new { ok = true, actions = actions });
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Error in GetMyActions: {0}", ex.Message));
+                return InternalServerError(ex);
+            }
+        }
     }
 }

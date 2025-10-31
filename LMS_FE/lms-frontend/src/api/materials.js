@@ -35,3 +35,35 @@ export async function deleteMaterial(id) {
   const res = await api.delete(`/materials/${id}`);
   return res.data;
 }
+
+// Get all materials with filter
+export async function getAllMaterials(status = null, skip = 0, take = 50) {
+  let url = `/materials?skip=${skip}&take=${take}`;
+  if (status !== null) url += `&status=${status}`;
+  const res = await api.get(url);
+  return res.data.data || [];
+}
+
+// Update material
+export async function updateMaterial(id, data) {
+  const res = await api.put(`/materials/${id}`, data);
+  return res.data;
+}
+
+// Submit material for review (Draft -> Pending)
+export async function submitMaterial(id) {
+  const res = await api.post(`/materials/${id}/submit`);
+  return res.data;
+}
+
+// Approve material (Pending -> Published)
+export async function approveMaterial(id) {
+  const res = await api.post(`/materials/${id}/approve`);
+  return res.data;
+}
+
+// Reject material (Pending -> Draft)
+export async function rejectMaterial(id, reason = '') {
+  const res = await api.post(`/materials/${id}/reject`, { reason });
+  return res.data;
+}

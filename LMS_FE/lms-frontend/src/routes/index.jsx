@@ -8,7 +8,7 @@ import MaterialsPublished from "../pages/MaterialsPublished";
 import MaterialsUpload from "../pages/MaterialsUpload";
 import MaterialsManage from "../pages/MaterialsManage";
 import MaterialView from "../pages/MaterialView";
-import MaterialList from "../pages/MaterialList";
+import Materials from "../pages/Materials";
 import Users from "../pages/Users";
 import Roles from "../pages/Roles";
 import Actions from "../pages/Actions";
@@ -80,7 +80,7 @@ export default function AppRoutes({ user, error, menu, doLogin, doLogout }) {
         element={
           <ProtectedRoute user={user}>
             <AppLayout user={user} menu={menu} onLogout={doLogout}>
-              <MaterialList />
+              <Materials />
             </AppLayout>
           </ProtectedRoute>
         }
@@ -91,7 +91,7 @@ export default function AppRoutes({ user, error, menu, doLogin, doLogout }) {
         element={
           <ProtectedRoute user={user}>
             <AppLayout user={user} menu={menu} onLogout={doLogout}>
-              <MaterialList />
+              <Materials />
             </AppLayout>
           </ProtectedRoute>
         }

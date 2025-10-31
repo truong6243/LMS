@@ -159,6 +159,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\MaterialListItem.cs" />
+    <Compile Include="Models\MaterialUpdateRequest.cs" />
     <Compile Include="Models\MaterialUploadRequest.cs" />
     <Compile Include="Models\MenuItem.cs" />
     <Compile Include="Models\UserInfo.cs" />

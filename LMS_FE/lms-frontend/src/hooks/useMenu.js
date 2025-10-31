@@ -9,7 +9,7 @@ export function useMenu(enabled = false) {
     if (!enabled) return;
     (async () => {
       setLoading(true);
-      try {
+      try        {
         const items = await getMyMenu();
 
         // Normalize property names (backend returns PascalCase)

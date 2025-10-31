@@ -8,8 +8,8 @@ namespace LMS.WebApi
     {
         public static void Register(HttpConfiguration config)
         {
-            // CORS: Chỉ cho phép frontend origin, KHÔNG dùng credentials (token-based)
-            var cors = new EnableCorsAttribute("http://localhost:5173", "*", "*");
+            // CORS: Cho phép cả 2 ports của frontend (5173 và 5174)
+            var cors = new EnableCorsAttribute("http://localhost:5173,http://localhost:5174", "*", "*");
             config.EnableCors(cors);
 
             config.MapHttpAttributeRoutes();
